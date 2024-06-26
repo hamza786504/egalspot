@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import logo from "@/public/logo.png";
 import { useSelector } from 'react-redux';
 import { Tooltip } from 'react-tooltip';
-import Loading from "@/backups/backup/app/admin/components/loading";
+import Loading from "@/pages/admin/components/loading";
 
 function Header() {
 
