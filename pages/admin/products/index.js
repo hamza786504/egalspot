@@ -5,18 +5,82 @@ import Header from '../components/header';
 import Footer from '../components/footer';
 import Link from 'next/link';
 import axios from 'axios';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import Image from 'next/image';
+
+
 
 export default function Products({ products }) {
 
-  console.log(products);
-
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [showModal, setShowModal] = useState(false);
+  const [allProducts, setAllProducts] = useState([]);
+  const [filter, setFilter] = useState('all');
+  const [selectedProductsId, setSelectedProductsId] = useState([]);
 
   const toggleSidebarMenu = () => {
     setIsSidebarOpen(!isSidebarOpen);
   };
+
+  const handleFilterChange = (filterType) => {
+    setFilter(filterType);
+  };
+
+  useEffect(() => {
+    let filteredProducts;
+    if (filter === "all") {
+      filteredProducts = [...products];
+    } else {
+      filteredProducts = products.filter(product => product.status === filter);
+    }
+
+    setAllProducts(filteredProducts);
+  }, [filter, products]);
+
+  const toggleProductSelection = (productId) => {
+    if (selectedProductsId.includes(productId)) {
+      setSelectedProductsId(selectedProductsId.filter(id => id !== productId));
+    } else {
+      setSelectedProductsId([...selectedProductsId, productId]);
+    }
+  };
+
+  const toggleAllProductsSelection = () => {
+    if (selectedProductsId.length === allProducts.length) {
+      setSelectedProductsId([]);
+    } else {
+      const productIds = allProducts.map(product => product._id);
+      setSelectedProductsId(productIds);
+    }
+  };
+  const deleteSelectedProducts = async () => {
+    if (selectedProductsId.length > 0) {
+      try {
+        const apiUrl = `http://localhost:3000/api/admin/product/delete/deleteProducts`;
+        const response = await axios.delete(apiUrl, {
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          data: { ids: selectedProductsId }, // Pass data as the 'data' property in Axios for DELETE request
+        });
+  
+        if (response.status === 200) {
+          // Assuming your backend responds with status 200 even on success, you can check response.data for details
+          const { message } = response.data;
+          const updatedProducts = allProducts.filter(product => !selectedProductsId.includes(product._id));
+          setAllProducts(updatedProducts);
+          setSelectedProductsId([]); // Clear selected products after deletion
+          console.log(message); // Log success message
+        } else {
+          console.error('Delete operation failed:', response.data.error);
+        }
+      } catch (error) {
+        console.error('Error deleting products:', error.message);
+        // Handle error state
+      }
+    }
+  };
+
 
 
   return (
@@ -114,130 +178,134 @@ export default function Products({ products }) {
             </div>
 
             <div className="font-[sans-serif] overflow-x-auto">
+
               <table className="min-w-full bg-white">
                 <thead className="whitespace-nowrap">
-
+                  <tr>
+                    <th colSpan={5}>
+                      <tr>
+                        <th className="px-1 text-left text-sm font-semibold text-gray-800">
+                          <button
+                            className={`inline-flex items-center justify-center px-4 py-2 rounded-md shadow ${filter === 'all' ? 'bg-gray-200' : 'bg-white border-gray-300 border'
+                              }`}
+                            onClick={() => handleFilterChange('all')}
+                          >
+                            All
+                          </button>
+                        </th>
+                        <th className="px-1 text-left text-sm font-semibold text-gray-800">
+                          <button
+                            className={`inline-flex items-center justify-center px-4 py-2 rounded-md shadow ${filter === 'active' ? 'bg-gray-200' : 'bg-white border-gray-300 border'
+                              }`}
+                            onClick={() => handleFilterChange('active')}
+                          >
+                            Active
+                          </button>
+                        </th>
+                        <th className="px-1 text-left text-sm font-semibold text-gray-800">
+                          <button
+                            className={`inline-flex items-center justify-center px-4 py-2 rounded-md shadow ${filter === 'draft' ? 'bg-gray-200' : 'bg-white border-gray-300 border'
+                              }`}
+                            onClick={() => handleFilterChange('draft')}
+                          >
+                            Draft
+                          </button>
+                        </th>
+                      </tr>
+                    </th>
+                    <th className={`p-3 text-left text-sm cursor-pointer font-semibold  ${selectedProductsId.length > 0 ? "text-gray-800" : "hidden"}`}>
+                      <svg xmlns="http://www.w3.org/2000/svg" onClick={() => { deleteSelectedProducts() }} fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-4">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0" />
+                      </svg>
+                    </th>
+                  </tr>
                   <tr>
                     <th className="pl-4 w-8">
-                      <input id="checkbox1" type="checkbox" className="hidden peer" />
-                      <label htmlFor="checkbox1"
-                        className="relative flex items-center justify-center p-0.5 peer-checked:before:hidden before:block before:absolute before:w-full before:h-full before:bg-white w-5 h-5 cursor-pointer bg-blue-500 border border-gray-400 rounded overflow-hidden">
+                      <input id="checkbox" onClick={() => { toggleAllProductsSelection() }} type="checkbox" className="hidden peer" />
+                      <label
+                        htmlFor="checkbox"
+                        className="relative flex items-center justify-center p-0.5 peer-checked:before:hidden before:block before:absolute before:w-full before:h-full before:bg-white w-5 h-5 cursor-pointer bg-blue-500 border border-gray-400 rounded overflow-hidden"
+                      >
                         <svg xmlns="http://www.w3.org/2000/svg" className="w-full fill-white" viewBox="0 0 520 520">
                           <path
                             d="M79.423 240.755a47.529 47.529 0 0 0-36.737 77.522l120.73 147.894a43.136 43.136 0 0 0 36.066 16.009c14.654-.787 27.884-8.626 36.319-21.515L486.588 56.773a6.13 6.13 0 0 1 .128-.2c2.353-3.613 1.59-10.773-3.267-15.271a13.321 13.321 0 0 0-19.362 1.343q-.135.166-.278.327L210.887 328.736a10.961 10.961 0 0 1-15.585.843l-83.94-76.386a47.319 47.319 0 0 0-31.939-12.438z"
-                            data-name="7-Check" data-original="#000000" />
+                            data-name="7-Check"
+                            data-original="#000000"
+                          />
                         </svg>
                       </label>
                     </th>
-                    <th className="p-4 text-left text-sm font-semibold text-gray-800">
-                      Company
+                    <th className="p-3 text-left text-sm font-semibold text-gray-800">
+                      Image
                     </th>
-                    <th className="p-4 text-left text-sm font-semibold text-gray-800">
+                    <th className="p-3 text-left text-sm font-semibold text-gray-800">
+                      Title
+                    </th>
+                    <th className="p-3 text-left text-sm font-semibold text-gray-800">
                       Status
-                      <svg xmlns="http://www.w3.org/2000/svg" className="w-3 h-3 fill-gray-500 inline cursor-pointer ml-2"
-                        viewBox="0 0 401.998 401.998">
-                        <path
-                          d="M73.092 164.452h255.813c4.949 0 9.233-1.807 12.848-5.424 3.613-3.616 5.427-7.898 5.427-12.847s-1.813-9.229-5.427-12.85L213.846 5.424C210.232 1.812 205.951 0 200.999 0s-9.233 1.812-12.85 5.424L60.242 133.331c-3.617 3.617-5.424 7.901-5.424 12.85 0 4.948 1.807 9.231 5.424 12.847 3.621 3.617 7.902 5.424 12.85 5.424zm255.813 73.097H73.092c-4.952 0-9.233 1.808-12.85 5.421-3.617 3.617-5.424 7.898-5.424 12.847s1.807 9.233 5.424 12.848L188.149 396.57c3.621 3.617 7.902 5.428 12.85 5.428s9.233-1.811 12.847-5.428l127.907-127.906c3.613-3.614 5.427-7.898 5.427-12.848 0-4.948-1.813-9.229-5.427-12.847-3.614-3.616-7.899-5.42-12.848-5.42z"
-                          data-original="#000000" />
-                      </svg>
                     </th>
-                    <th className="p-4 text-left text-sm font-semibold text-gray-800">
-                      Type
-                      <svg xmlns="http://www.w3.org/2000/svg" className="w-3 h-3 fill-gray-500 inline cursor-pointer ml-2"
-                        viewBox="0 0 401.998 401.998">
-                        <path
-                          d="M73.092 164.452h255.813c4.949 0 9.233-1.807 12.848-5.424 3.613-3.616 5.427-7.898 5.427-12.847s-1.813-9.229-5.427-12.85L213.846 5.424C210.232 1.812 205.951 0 200.999 0s-9.233 1.812-12.85 5.424L60.242 133.331c-3.617 3.617-5.424 7.901-5.424 12.85 0 4.948 1.807 9.231 5.424 12.847 3.621 3.617 7.902 5.424 12.85 5.424zm255.813 73.097H73.092c-4.952 0-9.233 1.808-12.85 5.421-3.617 3.617-5.424 7.898-5.424 12.847s1.807 9.233 5.424 12.848L188.149 396.57c3.621 3.617 7.902 5.428 12.85 5.428s9.233-1.811 12.847-5.428l127.907-127.906c3.613-3.614 5.427-7.898 5.427-12.848 0-4.948-1.813-9.229-5.427-12.847-3.614-3.616-7.899-5.42-12.848-5.42z"
-                          data-original="#000000" />
-                      </svg>
+                    <th className="p-3 text-left text-sm font-semibold text-gray-800">
+                      Price
                     </th>
-                    <th className="p-4 text-left text-sm font-semibold text-gray-800">
-                      SKU
-                    </th>
-                    <th className="p-4 text-left text-sm font-semibold text-gray-800">
-                      Contact
-                    </th>
-                    <th className="p-4 text-left text-sm font-semibold text-gray-800">
-                      Rating
-                      <svg xmlns="http://www.w3.org/2000/svg" className="w-3 h-3 fill-gray-500 inline cursor-pointer ml-2"
-                        viewBox="0 0 401.998 401.998">
-                        <path
-                          d="M73.092 164.452h255.813c4.949 0 9.233-1.807 12.848-5.424 3.613-3.616 5.427-7.898 5.427-12.847s-1.813-9.229-5.427-12.85L213.846 5.424C210.232 1.812 205.951 0 200.999 0s-9.233 1.812-12.85 5.424L60.242 133.331c-3.617 3.617-5.424 7.901-5.424 12.85 0 4.948 1.807 9.231 5.424 12.847 3.621 3.617 7.902 5.424 12.85 5.424zm255.813 73.097H73.092c-4.952 0-9.233 1.808-12.85 5.421-3.617 3.617-5.424 7.898-5.424 12.847s1.807 9.233 5.424 12.848L188.149 396.57c3.621 3.617 7.902 5.428 12.85 5.428s9.233-1.811 12.847-5.428l127.907-127.906c3.613-3.614 5.427-7.898 5.427-12.848 0-4.948-1.813-9.229-5.427-12.847-3.614-3.616-7.899-5.42-12.848-5.42z"
-                          data-original="#000000" />
-                      </svg>
-                    </th>
-                    <th className="p-4 text-left text-sm font-semibold text-gray-800">
+                    <th className="p-3 text-left text-sm font-semibold text-gray-800">
                       Action
                     </th>
                   </tr>
-
                 </thead>
 
                 <tbody className="whitespace-nowrap">
-                  {products.map(product => {
+                  {allProducts?.map((product, index) => {
                     return (
                       <>
-                        <tr className="odd:bg-blue-50">
+                        <tr key={index + 1} className="odd:bg-gray-50">
                           <td className="pl-4 w-8">
-                            <input id="checkbox2" type="checkbox" className="hidden peer" />
-                            <label for="checkbox2"
-                              className="relative flex items-center justify-center p-0.5 peer-checked:before:hidden before:block before:absolute before:w-full before:h-full before:bg-white w-5 h-5 cursor-pointer bg-blue-500 border border-gray-400 rounded overflow-hidden">
-                              <svg xmlns="http://www.w3.org/2000/svg" className="w-full fill-white" viewBox="0 0 520 520">
+                            <input
+                              id={`checkbox${index + 1}`}
+                              onChange={() => toggleProductSelection(product._id)}
+                              type="checkbox"
+                              checked={selectedProductsId.includes(product._id)}
+                              className="hidden peer"
+                            />
+                            <label
+                              htmlFor={`checkbox${index + 1}`}
+                              className="relative flex items-center justify-center p-0.5 peer-checked:before:hidden before:block before:absolute before:w-full before:h-full before:bg-white w-5 h-5 cursor-pointer bg-blue-500 border border-gray-400 rounded overflow-hidden"
+                            >
+                              <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                className="w-full fill-white"
+                                viewBox="0 0 520 520"
+                              >
                                 <path
                                   d="M79.423 240.755a47.529 47.529 0 0 0-36.737 77.522l120.73 147.894a43.136 43.136 0 0 0 36.066 16.009c14.654-.787 27.884-8.626 36.319-21.515L486.588 56.773a6.13 6.13 0 0 1 .128-.2c2.353-3.613 1.59-10.773-3.267-15.271a13.321 13.321 0 0 0-19.362 1.343q-.135.166-.278.327L210.887 328.736a10.961 10.961 0 0 1-15.585.843l-83.94-76.386a47.319 47.319 0 0 0-31.939-12.438z"
-                                  data-name="7-Check" data-original="#000000" />
+                                  data-name="7-Check"
+                                  data-original="#000000"
+                                />
                               </svg>
                             </label>
                           </td>
-                          <td className="p-4 text-sm text-gray-800">
-                            Louis Vuitton
+                          <td className="py-2 p-3 text-sm text-gray-800">
+                            <Image
+                              objectFit="cover"
+                              width={40}
+                              height={40}
+                              src={product.images[0]}
+                              alt="Product"
+                              className="w-10 h-10 rounded-md"
+                            />
                           </td>
-                          <td className="p-4 text-sm text-gray-800">
-                            <span
-                              className="w-[68px] block text-center py-1 border border-green-500 text-green-600 rounded text-xs">Active</span>
+                          <td className="py-2 p-3 text-sm text-gray-800">{product.title}</td>
+                          <td className="py-2 p-3 text-sm text-gray-800">
+                            <span className="w-[68px] block text-center py-1 border border-green-500 text-green-600 rounded text-xs">
+                              {product.status === "active" ? "Active" : "Draft"}
+                            </span>
                           </td>
-                          <td className="p-4 text-sm text-gray-800">
-                            Bravo
-                          </td>
-                          <td className="p-4 text-sm text-gray-800">
-                            8066
-                          </td>
-                          <td className="p-4 text-sm text-gray-800">
-                            <div className="flex items-center cursor-pointer">
-                              <img src='https://readymadeui.com/profile_4.webp' className="w-7 h-7 rounded-full shrink-0" />
-                              <div className="ml-4">
-                                <p className="text-sm text-gray-800">Gladys Jones</p>
-                              </div>
-                            </div>
-                          </td>
+                          <td className="py-2 p-3 text-sm text-gray-800">{product.price}</td>
                           <td className="p-4">
-                            <svg className="w-[18px] h-4 inline mr-1" viewBox="0 0 14 13" fill="none" xmlns="http://www.w3.org/2000/svg">
-                              <path
-                                d="M7 0L9.4687 3.60213L13.6574 4.83688L10.9944 8.29787L11.1145 12.6631L7 11.2L2.8855 12.6631L3.00556 8.29787L0.342604 4.83688L4.5313 3.60213L7 0Z"
-                                fill="#facc15" />
-                            </svg>
-                            <svg className="w-[18px] h-4 inline mr-1" viewBox="0 0 14 13" fill="none" xmlns="http://www.w3.org/2000/svg">
-                              <path
-                                d="M7 0L9.4687 3.60213L13.6574 4.83688L10.9944 8.29787L11.1145 12.6631L7 11.2L2.8855 12.6631L3.00556 8.29787L0.342604 4.83688L4.5313 3.60213L7 0Z"
-                                fill="#facc15" />
-                            </svg>
-                            <svg className="w-[18px] h-4 inline mr-1" viewBox="0 0 14 13" fill="none" xmlns="http://www.w3.org/2000/svg">
-                              <path
-                                d="M7 0L9.4687 3.60213L13.6574 4.83688L10.9944 8.29787L11.1145 12.6631L7 11.2L2.8855 12.6631L3.00556 8.29787L0.342604 4.83688L4.5313 3.60213L7 0Z"
-                                fill="#facc15" />
-                            </svg>
-                            <svg className="w-[18px] h-4 inline mr-1" viewBox="0 0 14 13" fill="none" xmlns="http://www.w3.org/2000/svg">
-                              <path
-                                d="M7 0L9.4687 3.60213L13.6574 4.83688L10.9944 8.29787L11.1145 12.6631L7 11.2L2.8855 12.6631L3.00556 8.29787L0.342604 4.83688L4.5313 3.60213L7 0Z"
-                                fill="#facc15" />
-                            </svg>
-                            <svg className="w-[18px] h-4 inline" viewBox="0 0 14 13" fill="none" xmlns="http://www.w3.org/2000/svg">
-                              <path
-                                d="M7 0L9.4687 3.60213L13.6574 4.83688L10.9944 8.29787L11.1145 12.6631L7 11.2L2.8855 12.6631L3.00556 8.29787L0.342604 4.83688L4.5313 3.60213L7 0Z"
-                                fill="#facc15" />
-                            </svg>
-                          </td>
-                          <td className="p-4">
-                            <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5 cursor-pointer fill-gray-500 rotate-90" viewBox="0 0 24 24">
+                            <svg
+                              xmlns="http://www.w3.org/2000/svg"
+                              className="w-5 h-5 cursor-pointer fill-gray-500 rotate-90"
+                              viewBox="0 0 24 24"
+                            >
                               <circle cx="12" cy="12" r="2" data-original="#000000" />
                               <circle cx="4" cy="12" r="2" data-original="#000000" />
                               <circle cx="20" cy="12" r="2" data-original="#000000" />
@@ -247,39 +315,46 @@ export default function Products({ products }) {
                       </>
                     )
                   })}
+                  {allProducts.length == 0 && <tr><td colspan='6'><h1 className='text-center p-3'>No Products Found</h1></td></tr>}
                 </tbody>
+
+
               </table>
+
+
             </div>
           </main>
 
 
 
           <Footer />
-        </div>
-      </div>
+        </div >
+      </div >
     </>
   );
 }
 
 
-
-// const response = await fetch('/api/admin/product/getProducts');
-
 export async function getServerSideProps() {
+  const baseUrl = process.env.baseUrl;
+
   try {
-    const response = await fetch('./api/admin/product/getProducts');
-    if (!response.ok) {
-      throw new Error('Network response was not ok');
+    const apiUrl = `${baseUrl}/api/admin/product/getProducts`;
+
+    const response = await axios.get(apiUrl);
+
+    if (response.status !== 200) {
+      throw new Error('Failed to fetch products');
     }
-    const data = await response.json();
-    const products = data.products;
+
     return {
       props: {
-        products
+        products: response.data.products
       }
     };
   } catch (error) {
-    console.error('Error fetching products:', error);
+    console.error('Error fetching products:', error.message);
+
     return {
       props: {
         products: []
@@ -287,4 +362,3 @@ export async function getServerSideProps() {
     };
   }
 }
-

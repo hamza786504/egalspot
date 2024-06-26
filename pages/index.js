@@ -1,3 +1,7 @@
+import CategorySection from "@/components/CategorySection";
+import NewsletterPopup from "@/components/NewsletterPopup";
+import SlideShow from "@/components/SlideShow";
+import Topbar from "@/components/Topbar";
 import Footer from "@/components/footer";
 import Header from "@/components/header";
 import ProductGrid from "@/components/productgrid";
@@ -5,7 +9,11 @@ import ProductGrid from "@/components/productgrid";
 export default function Home({ products }) {
   return (
     <>
+      <Topbar />
+      <NewsletterPopup />
       <Header />
+      <SlideShow />
+      <CategorySection /> 
       <ProductGrid products={products} itemsPerRow={4} limit={8} />
       <Footer />
     </>

@@ -5,7 +5,7 @@ import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import React from 'react'
 import { useDispatch, useSelector } from 'react-redux';
-import { addToCart, incrementQuantity, decrementQuantity } from '../store/cartSlice';
+import { addToCart, incrementQuantity, decrementQuantity } from '@/store/cartSlice';
 import { useRouter } from 'next/router';
 
 export default function Product({ data }) {
@@ -37,7 +37,6 @@ export default function Product({ data }) {
     const { id } = router.query;
     // Check if the product exists in the cart
     const storedCart = JSON.parse(localStorage.getItem("cart"));
-    console.log("storedCart id is " + storedCart.id + " and url id is " + id);
     if (storedCart && storedCart.id === id) {
       setQuantity(storedCart.quantity);
     } else {
@@ -47,7 +46,6 @@ export default function Product({ data }) {
 
   // Check if the product exists in the cart
   useEffect(() => {
-    console.log(JSON.parse(localStorage.getItem("cart")));
     const cartItem = cartItems.find(item => item.id === data.id);
     if (cartItem) {
       setQuantity(cartItem.quantity);
@@ -61,7 +59,7 @@ export default function Product({ data }) {
       <div className="p-6 lg:max-w-7xl max-w-2xl max-lg:mx-auto">
         <div className="grid items-start grid-cols-1 lg:grid-cols-2 gap-10">
           <div className="w-full lg:sticky top-0 text-center">
-            <Image src={data.images[activeImage]} alt="Product" width={300} height={300} objectFit='cover' className="max-w-96 max-h-96 mx-auto object-contain rounded-xl" />
+            <Image src={data.thumbnail} alt="Product" width={300} height={300} objectFit='cover' className="max-w-96 max-h-96 mx-auto object-contain rounded-xl" />
 
 
             <div className="flex flex-wrap gap-x-8 gap-y-6 justify-center mx-auto mt-4">

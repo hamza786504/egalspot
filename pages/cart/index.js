@@ -6,7 +6,7 @@ import logo from "@/public/logo-icon.png"
 import Header from '@/components/header'
 import Footer from '@/components/footer'
 import { useDispatch, useSelector } from 'react-redux';
-import { addToCart, removeFromCart , incrementQuantity , decrementQuantity } from '../store/cartSlice';
+import { addToCart, removeFromCart, incrementQuantity, decrementQuantity } from '@/store/cartSlice';
 
 export default function Cart() {
 
@@ -68,13 +68,13 @@ export default function Cart() {
                                         </td>
                                         <td className="text-center">
                                             <div className="flex items-center">
-                                                <button type='button' onClick={() => {handleDecrementQuantity(item)}}>
+                                                <button type='button' onClick={() => { handleDecrementQuantity(item) }}>
                                                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
                                                         <path stroke-linecap="round" stroke-linejoin="round" d="M5 12h14" />
                                                     </svg>
                                                 </button>
                                                 <input className="mx-2 border text-center w-8" type="text" value={item.quantity} />
-                                                <button type="button" onClick={() => {handleIncrementQuantity(item)}}>
+                                                <button type="button" onClick={() => { handleIncrementQuantity(item) }}>
                                                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
                                                         <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
                                                     </svg>

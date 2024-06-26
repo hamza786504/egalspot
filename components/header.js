@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import logo from "@/public/logo.png";
 import { useSelector } from 'react-redux';
 import { Tooltip } from 'react-tooltip';
+import Loading from "@/backups/backup/app/admin/components/loading";
 
 function Header() {
 
@@ -52,7 +53,9 @@ function Header() {
 
     
     return (
-        <header className='shadow-md bg-white tracking-wide relative z-50'>
+        <>
+        <Loading />
+        <header className='shadow-md bg-white tracking-wide relative z-30'>
             <section
                 className='flex items-center flex-wrap lg:justify-center gap-4 py-3 sm:px-2 px-4 border-gray-200 border-b min-h-[75px]'>
                 <div className='left-10 absolute z-50 bg-gray-100 flex px-4 py-3 rounded max-lg:hidden'>
@@ -101,7 +104,6 @@ function Header() {
 
 
             <div className='flex flex-wrap justify-center lg:px-10 lg:py-3 relative'>
-
                 <div id="collapseMenu"
                     className={`${isMenuOpen ? "" : "hidden"} lg:flex max-lg:before:fixed max-lg:before:bg-black max-lg:before:opacity-40 max-lg:before:inset-0 max-lg:before:z-50`}>
                     <button onClick={toggleMenu} className='lg:hidden fixed top-2 right-4 z-[100] rounded-full bg-white p-3'>
@@ -168,6 +170,7 @@ function Header() {
 
             </div>
         </header>
+        </>
     )
 }
 

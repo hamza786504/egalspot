@@ -6,7 +6,7 @@ function ProductCard({ product, itemsPerRow }) {
   return (
     <>
       <div className={`sm:w-1/2 md:w-1/3 ${rowClass} px-2 flex items-stretch justify-stretch`}>
-        <div class={`my-2 flex items-center flex-col bg-white hover:shadow-lg w-full shadow-md rounded-xl p-3 cursor-pointer`}>
+        <div class={`mb-2 flex items-center flex-col bg-white hover:shadow-lg w-full border rounded-xl p-3 cursor-pointer`}>
           <Link href={`/product/${product.id}`} className='relative block w-full h-48'>
             <Image src={product.thumbnail} alt={product.thumbnail} layout="fill" className='hover:scale-105 transition' objectFit="contain" />
           </Link>
