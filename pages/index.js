@@ -22,7 +22,7 @@ export default function Home({ products }) {
 
 export async function getServerSideProps() {
   try {
-    const response = await fetch('https://dummyjson.com/products');
+    const response = await fetch('http://localhost:3000/api/admin/product/getProducts');
     if (!response.ok) {
       throw new Error('Network response was not ok');
     }

@@ -5,7 +5,7 @@ import Sidebar from './components/sidebar';
 import Header from './components/header';
 import Footer from './components/footer';
 
-export default function Home() {
+export default function Home({products}) {
 
 
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -31,7 +31,7 @@ export default function Home() {
     return {
       thisMonthSales: 10000,
       thisMonthOrder: 500,
-      totalProducts: 1500,
+      totalProducts: products.length,
       totalCollections: 200000
     };
   };
@@ -52,8 +52,8 @@ export default function Home() {
               <h1 className="text-2xl font-semibold whitespace-nowrap">Dashboard</h1>
 
               <a
-                href="https://kamona-wd.github.io/kwd-dashboard/"
-                target="_blank"
+                href="/admin/products/add"
+                target=""
                 rel="noopener noreferrer"
                 className="inline-flex items-center justify-center px-4 py-2 space-x-1 bg-red-500 text-white rounded-md shadow hover:bg-red-600"
               >
@@ -123,7 +123,6 @@ export default function Home() {
 
 
             <h3 className="my-6 text-xl">Users</h3>
-            {/* Table */}
             <div class="font-[sans-serif] overflow-x-auto">
               <table class="min-w-full bg-white">
                 <thead class="whitespace-nowrap">
@@ -538,4 +537,30 @@ export default function Home() {
       </div>
     </>
   );
+}
+
+
+
+
+export async function getServerSideProps() {
+  try {
+    const response = await fetch('http://localhost:3000/api/admin/product/getProducts');
+    if (!response.ok) {
+      throw new Error('Network response was not ok');
+    }
+    const data = await response.json();
+    const products = data.products;
+    return {
+      props: {
+        products
+      }
+    };
+  } catch (error) {
+    console.error('Error fetching products:', error);
+    return {
+      props: {
+        products: []
+      }
+    };
+  }
 }

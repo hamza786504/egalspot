@@ -9,7 +9,7 @@ function ProductGrid({ products, limit , itemsPerRow }) {
         <div className="flex flex-wrap justify-start w-full items-stretch">
           {/* Map over the limited products array */}
           {products.map((product) => (
-            <ProductCard key={product.id} itemsPerRow={itemsPerRow} product={product} />
+            <ProductCard key={product._id} itemsPerRow={itemsPerRow} product={product} />
           ))}
         </div>
       </div>

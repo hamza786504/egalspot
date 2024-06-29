@@ -7,11 +7,11 @@ function ProductCard({ product, itemsPerRow }) {
     <>
       <div className={`sm:w-1/2 md:w-1/3 ${rowClass} px-2 flex items-stretch justify-stretch`}>
         <div class={`mb-2 flex items-center flex-col bg-white hover:shadow-lg w-full border rounded-xl p-3 cursor-pointer`}>
-          <Link href={`/product/${product.id}`} className='relative block w-full h-48'>
-            <Image src={product.thumbnail} alt={product.thumbnail} layout="fill" className='hover:scale-105 transition' objectFit="contain" />
+          <Link href={`/product/${product._id}`} className='relative block w-full h-48'>
+            <Image src={product.images[0]} alt={product.thumbnail} layout="fill" className='hover:scale-105 transition' objectFit="contain" />
           </Link>
           <div class="mt-4 w-full mb-2 flex-grow justify-between ">
-            <Link href={`/product/${product.id}`} class="flex-1 text-lg font-semibold text-gray-900 mb-0">{product.title}</Link>
+            <Link href={`/product/${product._id}`} class="flex-1 text-lg font-semibold text-gray-900 mb-0">{product.title}</Link>
           </div>
           <p class="w-full text-md text-gray-800 mt-0">${product.price.toFixed(2)}</p>
           <div className="flex w-full items-center ms-2 my-3">
